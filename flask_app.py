@@ -6,6 +6,7 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
 sessionStorage = {}
+product = "слон"
 
 
 @app.route('/post', methods=['POST'])
@@ -28,6 +29,7 @@ def main():
 
 
 def handle_dialog(req, res):
+    global product
     user_id = req['session']['user_id']
 
     if req['session']['new']:
@@ -39,7 +41,7 @@ def handle_dialog(req, res):
                 "Отстань!",
             ]
         }
-        res['response']['text'] = 'Привет! Купи слона!'
+        res['response']['text'] = f'Привет! Купи {product}а!'
         res['response']['buttons'] = get_suggests(user_id)
         return
 
@@ -47,14 +49,18 @@ def handle_dialog(req, res):
         'ладно',
         'куплю',
         'покупаю',
-        'хорошо'
+        'хорошо',
+        'я покупаю',
+        'я куплю'
     ]:
-        res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
-        res['response']['end_session'] = True
+        res['response']['text'] = f'{product.capitalize()}а можно найти на Яндекс.Маркете!'
+        if product != "слон":
+            res['response']['end_session'] = True
+        product = "кролик"
         return
 
     res['response']['text'] = \
-        f"Все говорят '{req['request']['original_utterance']}', а ты купи слона!"
+        f"Все говорят '{req['request']['original_utterance']}', а ты купи {product}а!"
     res['response']['buttons'] = get_suggests(user_id)
 
 
@@ -69,7 +75,7 @@ def get_suggests(user_id):
     if len(suggests) < 2:
         suggests.append({
             "title": "Ладно",
-            "url": "https://market.yandex.ru/search?text=слон",
+            "url": f"https://market.yandex.ru/search?text={product}",
             "hide": True
         })
 
